@@ -1,6 +1,6 @@
-# CryptoBot
+# WhatsApp CoinMarket Bot
 
-CryptoBot is a WhatsApp bot that provides real-time cryptocurrency information and market data using the CoinMarketCap API.
+A WhatsApp bot that provides real-time cryptocurrency information and market data using the CoinMarketCap API.
 
 ## Features
 
@@ -22,8 +22,8 @@ CryptoBot is a WhatsApp bot that provides real-time cryptocurrency information a
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/cryptobot.git
-   cd cryptobot
+   git clone https://github.com/iblessdeno/whatsapp-coinmarket-bot.git
+   cd whatsapp-coinmarket-bot
    ```
 
 2. Install dependencies:
@@ -31,12 +31,7 @@ CryptoBot is a WhatsApp bot that provides real-time cryptocurrency information a
    npm install
    ```
 
-3. Create a `config.json` file in the project root and add your CoinMarketCap API key:
-   ```json
-   {
-     "CMC_API_KEY": "your-api-key-here"
-   }
-   ```
+3. The bot will prompt you to set up your CoinMarketCap API key when you first run it.
 
 ## Usage
 
@@ -45,9 +40,11 @@ CryptoBot is a WhatsApp bot that provides real-time cryptocurrency information a
    npm start
    ```
 
-2. Scan the QR code with WhatsApp to log in.
+2. Scan the QR code with WhatsApp to log in. The number you use to scan the QR code will automatically be set as the admin number.
 
-3. Use the following commands in any WhatsApp chat:
+3. The bot will prompt you to set up your CoinMarketCap API key. Send the API key in the format: `CMC="YOUR_API_KEY_HERE"` in the chat.
+
+4. Once the API key is set, use the following commands in any WhatsApp chat:
 
    - `!help`: Show available commands
    - `!price [symbol] [currency]`: Get current price of a cryptocurrency
@@ -77,13 +74,19 @@ To deploy the bot on an Ubuntu VPS:
 
 4. Start the bot with PM2:
    ```
-   pm2 start main.js --name cryptobot
+   pm2 start main.js --name whatsapp-coinmarket-bot
    ```
 
 5. Set up PM2 to start on boot:
    ```
    pm2 startup systemd
    ```
+
+## Security
+
+- The admin number is automatically set to the number used to scan the QR code.
+- Only the admin can set or change the CoinMarketCap API key.
+- The API key is stored securely in a local file (api_key.json) and is not exposed in the code.
 
 ## Contributing
 
