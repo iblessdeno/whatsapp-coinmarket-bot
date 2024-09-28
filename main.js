@@ -125,8 +125,10 @@ async function checkLoginStatus() {
 // Modify the showMenu function
 async function showMenu() {
     console.log('\nWhatsApp Bot Menu:');
-    console.log('1. Check for session');
-    console.log('2. Exit');
+    console.log('1. Resume Session');
+    console.log('2. Logout');
+    console.log('3. Add Admin');
+    console.log('4. Exit');
     rl.question('Choose an option: ', handleMenuChoice);
 }
 
@@ -134,88 +136,35 @@ async function showMenu() {
 async function handleMenuChoice(choice) {
     switch (choice) {
         case '1':
-            const hasSession = await checkLoginStatus();
-            console.log(`checkLoginStatus result: ${hasSession}`);
-            if (hasSession) {
-                console.log('\nExisting session found.');
-                console.log('1. Resume Session');
-                console.log('2. Logout');
-                console.log('3. Exit');
-                rl.question('Choose an option: ', handleSessionChoice);
-            } else {
-                console.log('\nNo existing session found.');
-                console.log('1. Login');
-                console.log('2. Exit');
-                rl.question('Choose an option: ', handleNoSessionChoice);
-            }
-            break;
-        case '2':
-            console.log('Exiting...');
-            rl.close();
-            process.exit(0);
-        default:
-            console.error('Invalid option. Please try again.');
-            showMenu();
-    }
-}
-
-// Add new function to handle choices when a session exists
-async function handleSessionChoice(choice) {
-    switch (choice) {
-        case '1':
-            if (!isLoggedIn) {
-                console.log('Resuming existing session...');
-                initializeClient();
-            } else {
-                console.log('Already logged in.');
-                showMenu();
-            }
+            console.log('Resuming session...');
+            await initializeClient();
             break;
         case '2':
             console.log('Logging out...');
-            try {
-                if (client && client.pupPage) {
-                    await client.destroy();
-                }
-            } catch (error) {
-                console.error('Error during logout:', error);
-            }
-
-            await clearSession();
-
-            console.log('Logout complete. Starting new session.');
-            await initializeClient();
-            break;
-        case '3':
-            console.log('Exiting...');
-            if (isLoggedIn) {
+            if (client) {
                 try {
                     await client.destroy();
+                    console.log('Logged out successfully.');
                 } catch (error) {
                     console.error('Error during logout:', error);
                 }
+                await clearSession();
             }
-            rl.close();
-            process.exit(0);
-        default:
-            console.error('Invalid option. Please try again.');
             showMenu();
-    }
-}
-
-// Add new function to handle choices when no session exists
-async function handleNoSessionChoice(choice) {
-    switch (choice) {
-        case '1':
-            console.log('Initializing new client...');
-            initializeClient();
             break;
-        case '2':
+        case '3':
+            rl.question('Enter the admin phone number (with country code, no spaces or symbols): ', (number) => {
+                adminNumber = number;
+                console.log(`Admin number set to: ${adminNumber}`);
+                showMenu();
+            });
+            break;
+        case '4':
             console.log('Exiting...');
             rl.close();
             process.exit(0);
         default:
-            console.error('Invalid option. Please try again.');
+            console.log('Invalid option. Please try again.');
             showMenu();
     }
 }
