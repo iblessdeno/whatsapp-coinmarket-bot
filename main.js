@@ -11,6 +11,7 @@ const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 const stringSimilarity = require('string-similarity');
 const fuzzysort = require('fuzzysort');
 const { clearSession } = require('./sessionCleaner');
+const { showInitialMenu, promptAdminNumber, promptCMCKey } = require('./menuHandler');
 
 // Add this variable at the top of the file, replacing the existing CMC_API_KEY
 let CMC_API_KEY = null;
@@ -1112,6 +1113,34 @@ function handleApiError(message, error) {
     }
 }
 
-// Add this at the end of the file
-console.log('Script started. Showing menu...');
-showMenu();
+// Modify the main function
+async function main() {
+    console.log('WhatsApp Terminal Bot');
+    showInitialMenu(initializeClient, checkLoginStatus, clearSession);
+}
+
+// Add these functions if they don't exist
+async function initializeClient() {
+    try {
+        console.log('Starting client initialization...');
+        await client.initialize();
+        console.log('Client initialized successfully.');
+        isLoggedIn = true;
+    } catch (error) {
+        console.error('Error initializing client:', error);
+        if (error.message.includes('Execution context was destroyed')) {
+            console.log('Attempting to reinitialize...');
+            setTimeout(initializeClient, 5000); // Retry after 5 seconds
+        } else {
+            console.error('Unrecoverable error. Please restart the application.');
+            process.exit(1);
+        }
+    }
+    client.on('ready', async () => {
+        console.log('Client is ready!');
+        adminNumber = await promptAdminNumber();
+        CMC_API_KEY = await promptCMCKey();
+    });
+}
+
+main().catch(console.error);
