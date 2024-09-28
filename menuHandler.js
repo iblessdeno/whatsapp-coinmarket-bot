@@ -95,27 +95,14 @@ async function handleMainChoice(choice, initializeClient, clearSession) {
 
 async function promptAdminNumber() {
     return new Promise((resolve) => {
-        rl.question('Enter the admin phone number (with country code, no spaces or symbols): ', async (number) => {
+        rl.question('Enter the admin phone number (with country code, no spaces or symbols): ', (number) => {
             console.log(`Admin number set to: ${number}`);
-            const apiKey = await promptCMCKey();
-            resolve({ adminNumber: number, apiKey });
-        });
-    });
-}
-
-async function promptCMCKey() {
-    return new Promise((resolve) => {
-        rl.question('Enter your CoinMarketCap API key: ', async (key) => {
-            console.log('CoinMarketCap API key set successfully.');
-            // Save the API key to a file
-            await fs.writeFile('api_key.json', JSON.stringify({ apiKey: key }));
-            resolve(key);
+            resolve(number);
         });
     });
 }
 
 module.exports = {
     showInitialMenu,
-    promptAdminNumber,
-    promptCMCKey
+    promptAdminNumber
 };

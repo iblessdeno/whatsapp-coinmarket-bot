@@ -11,7 +11,7 @@ const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 const stringSimilarity = require('string-similarity');
 const fuzzysort = require('fuzzysort');
 const { clearSession } = require('./sessionCleaner');
-const { showInitialMenu, promptAdminNumber, promptCMCKey } = require('./menuHandler');
+const { showInitialMenu, promptAdminNumber } = require('./menuHandler');
 
 // Add this variable at the top of the file, replacing the existing CMC_API_KEY
 let CMC_API_KEY = null;
@@ -183,10 +183,6 @@ client.on('disconnected', (reason) => {
 
 // Modify the initialize process
 async function initializeClient() {
-    const { adminNumber: newAdminNumber, apiKey } = await promptAdminNumber();
-    adminNumber = newAdminNumber;
-    CMC_API_KEY = apiKey;
-
     client = new Client({
         authStrategy: new LocalAuth(),
         puppeteer: {
@@ -200,9 +196,32 @@ async function initializeClient() {
         qrcode.generate(qr, { small: true });
     });
 
-    client.on('ready', () => {
+    client.on('ready', async () => {
         console.log('Client is ready!');
-        // Add your bot logic here
+        adminNumber = await promptAdminNumber();
+        console.log(`Please send the CoinMarketCap API key from the admin number (${adminNumber}) in the format: CMC="YOUR_API_KEY_HERE"`);
+        waitingForApiKey = true;
+    });
+
+    client.on('message_create', async (message) => {
+        if (waitingForApiKey && message.from === adminNumber) {
+            const apiKeyMatch = message.body.match(/^CMC="([^"]+)"$/);
+            if (apiKeyMatch) {
+                CMC_API_KEY = apiKeyMatch[1].trim();
+                console.log('API key set:', CMC_API_KEY);
+                await saveApiKey(adminNumber, CMC_API_KEY);
+                await message.reply('Thank you! Your CoinMarketCap API key has been set and saved.');
+                waitingForApiKey = false;
+                // Start your bot's main logic here
+                startBot();
+            } else {
+                await message.reply('Invalid API key format. Please use the format: CMC="YOUR_API_KEY_HERE"');
+            }
+            return;
+        }
+
+        // Your existing message handling logic here
+        // ...
     });
 
     try {
@@ -1143,10 +1162,6 @@ async function main() {
 
 // Add these functions if they don't exist
 async function initializeClient() {
-    const { adminNumber: newAdminNumber, apiKey } = await promptAdminNumber();
-    adminNumber = newAdminNumber;
-    CMC_API_KEY = apiKey;
-
     client = new Client({
         authStrategy: new LocalAuth(),
         puppeteer: {
@@ -1160,9 +1175,32 @@ async function initializeClient() {
         qrcode.generate(qr, { small: true });
     });
 
-    client.on('ready', () => {
+    client.on('ready', async () => {
         console.log('Client is ready!');
-        // Add your bot logic here
+        adminNumber = await promptAdminNumber();
+        console.log(`Please send the CoinMarketCap API key from the admin number (${adminNumber}) in the format: CMC="YOUR_API_KEY_HERE"`);
+        waitingForApiKey = true;
+    });
+
+    client.on('message_create', async (message) => {
+        if (waitingForApiKey && message.from === adminNumber) {
+            const apiKeyMatch = message.body.match(/^CMC="([^"]+)"$/);
+            if (apiKeyMatch) {
+                CMC_API_KEY = apiKeyMatch[1].trim();
+                console.log('API key set:', CMC_API_KEY);
+                await saveApiKey(adminNumber, CMC_API_KEY);
+                await message.reply('Thank you! Your CoinMarketCap API key has been set and saved.');
+                waitingForApiKey = false;
+                // Start your bot's main logic here
+                startBot();
+            } else {
+                await message.reply('Invalid API key format. Please use the format: CMC="YOUR_API_KEY_HERE"');
+            }
+            return;
+        }
+
+        // Your existing message handling logic here
+        // ...
     });
 
     try {
@@ -1180,6 +1218,16 @@ async function initializeClient() {
             process.exit(1);
         }
     }
+}
+
+async function saveApiKey(number, apiKey) {
+    const data = { number, apiKey };
+    await fs.writeFile('api_key.json', JSON.stringify(data, null, 2));
+}
+
+function startBot() {
+    console.log('Bot is now fully operational!');
+    // Add your main bot logic here
 }
 
 main().catch(console.error);
