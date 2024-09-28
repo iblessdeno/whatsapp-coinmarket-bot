@@ -10,6 +10,7 @@ const Chart = require('chart.js/auto');
 const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 const stringSimilarity = require('string-similarity');
 const fuzzysort = require('fuzzysort');
+const { clearSession } = require('./sessionCleaner');
 
 // Add this variable at the top of the file, replacing the existing CMC_API_KEY
 let CMC_API_KEY = null;
@@ -74,25 +75,10 @@ async function loadApiKey() {
 
 // Modify the client configuration
 const client = new Client({
-    authStrategy: new LocalAuth({ dataPath: path.join(__dirname, '.wwebjs_auth') }),
+    authStrategy: new LocalAuth(),
     puppeteer: {
-        headless: false, // Set to false for debugging
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-extensions',
-            '--disable-gpu',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process',
-            '--disable-dev-shm-usage'
-        ],
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
-        userDataDir: path.join(__dirname, '.wwebjs_auth', 'session'),
-        restartOnAuthFail: true,
-        takeoverOnConflict: true,
-        takeoverTimeoutMs: 10000
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
     }
 });
 
@@ -188,17 +174,17 @@ async function handleSessionChoice(choice) {
         case '2':
             console.log('Logging out...');
             try {
-                if (client && typeof client.destroy === 'function') {
+                if (client && client.pupPage) {
                     await client.destroy();
                 }
-                isLoggedIn = false;
-                console.log('Logged out successfully.');
             } catch (error) {
                 console.error('Error during logout:', error);
             }
-            console.log('Attempting to clean up session files...');
-            await cleanupSessionFiles();
-            showMenu();
+
+            await clearSession();
+
+            console.log('Logout complete. Starting new session.');
+            await initializeClient();
             break;
         case '3':
             console.log('Exiting...');

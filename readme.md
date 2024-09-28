@@ -1,22 +1,12 @@
 # WhatsApp CoinMarket Bot
 
-A WhatsApp bot that provides real-time cryptocurrency information and market data using the CoinMarketCap API.
-
-## Features
-
-- Real-time cryptocurrency prices
-- Historical price data
-- Top 10 cryptocurrencies by market cap
-- Trending cryptocurrencies (gainers and losers)
-- Detailed cryptocurrency information
-- Top cryptocurrency exchanges
-- Recent airdrop news
+A WhatsApp bot that runs entirely in the terminal, providing cryptocurrency information using the CoinMarketCap API.
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js (v14 or higher recommended)
 - npm (Node Package Manager)
-- CoinMarketCap API key
+- A VPS running Ubuntu (for deployment)
 
 ## Installation
 
@@ -28,74 +18,92 @@ A WhatsApp bot that provides real-time cryptocurrency information and market dat
 
 2. Install dependencies:
    ```
-   npm install
+   npm install whatsapp-web.js qrcode-terminal axios dotenv
    ```
 
-3. The bot will prompt you to set up your CoinMarketCap API key when you first run it.
-
-## Usage
+## Local Deployment
 
 1. Start the bot:
    ```
-   npm start
+   node main.js
    ```
 
-2. Scan the QR code with WhatsApp to log in. The number you use to scan the QR code will automatically be set as the admin number.
+2. When prompted, scan the QR code with your WhatsApp mobile app to authenticate.
 
-3. The bot will prompt you to set up your CoinMarketCap API key. Send the API key in the format: `CMC="YOUR_API_KEY_HERE"` in the chat.
+3. The bot is now running and will respond to messages based on your implemented logic.
 
-4. Once the API key is set, use the following commands in any WhatsApp chat:
+## VPS Deployment (Ubuntu)
 
-   - `!help`: Show available commands
-   - `!price [symbol] [currency]`: Get current price of a cryptocurrency
-   - `!historical [symbol] [YYYY-MM-DD] [currency]`: Get historical data
-   - `!top10`: Get top 10 cryptocurrencies by market cap
-   - `!trending [type] [currency]`: Get trending gainers and losers
-   - `!info [symbol]`: Get detailed information about a cryptocurrency
-   - `!exchanges [limit]`: Get top cryptocurrency exchanges
-   - `!airdrop`: Get recent airdrop news
+1. Connect to your VPS via SSH.
 
-## Deployment
-
-To deploy the bot on an Ubuntu VPS:
-
-1. Install Node.js and npm:
+2. Update the system and install Node.js and npm:
    ```
    sudo apt update
-   sudo apt install nodejs npm
+   sudo apt upgrade -y
+   curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+   sudo apt-get install -y nodejs
    ```
 
-2. Install PM2 for process management:
+3. Install PM2 for process management:
    ```
    sudo npm install -g pm2
    ```
 
-3. Clone the repository and install dependencies as described in the Installation section.
+4. Clone the repository and install dependencies:
+   ```
+   git clone https://github.com/iblessdeno/whatsapp-coinmarket-bot.git
+   cd whatsapp-coinmarket-bot
+   npm install
+   ```
 
-4. Start the bot with PM2:
+5. Start the bot with PM2:
    ```
    pm2 start main.js --name whatsapp-coinmarket-bot
    ```
 
-5. Set up PM2 to start on boot:
+6. Set up PM2 to start on boot:
    ```
    pm2 startup systemd
    ```
+   Follow the instructions provided by the command.
 
-## Security
+7. Save the PM2 process list:
+   ```
+   pm2 save
+   ```
 
-- The admin number is automatically set to the number used to scan the QR code.
-- Only the admin can set or change the CoinMarketCap API key.
-- The API key is stored securely in a local file (api_key.json) and is not exposed in the code.
+8. To view the bot's console output:
+   ```
+   pm2 logs whatsapp-coinmarket-bot
+   ```
 
-## Contributing
+## Session Management
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- On subsequent runs, you'll be presented with options to resume the session, logout, or exit.
+- To clear the session and start fresh, choose the logout option.
 
-## License
+## Project Structure
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- `main.js`: Main bot logic and client initialization
+- `sessionCleaner.js`: Handles session cleanup operations
+- `src/index.ts`: TypeScript source for additional functionality
 
-## Disclaimer
+## Customization
 
-This bot is for educational and informational purposes only. Do not use it for financial advice or making investment decisions.
+Modify the message handling logic in `main.js` to add your own commands and responses.
+
+## Troubleshooting
+
+If you encounter session-related issues:
+1. Ensure no other processes are accessing the session files.
+2. Run the script with administrator privileges if needed.
+3. Manually delete the `.wwebjs_auth` folder as a last resort.
+
+## Required Modules
+
+- whatsapp-web.js: WhatsApp Web API
+- qrcode-terminal: Generates QR codes in the terminal
+- axios: HTTP client for making API requests
+- dotenv: Loads environment variables from a .env file
+
+Install these modules using:
