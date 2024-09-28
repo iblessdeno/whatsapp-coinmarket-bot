@@ -45,7 +45,7 @@ async function showNoSessionMenu(initializeClient, clearSession) {
 async function handleNoSessionChoice(choice, initializeClient, clearSession) {
     switch (choice) {
         case '1':
-            await initializeClient();
+            await promptAdminNumber();
             break;
         case '2':
             console.log('Exiting...');
@@ -95,10 +95,10 @@ async function handleMainChoice(choice, initializeClient, clearSession) {
 
 async function promptAdminNumber() {
     return new Promise((resolve) => {
-        rl.question('Enter the admin phone number (with country code, no spaces or symbols): ', (number) => {
+        rl.question('Enter the admin phone number (with country code, no spaces or symbols): ', async (number) => {
             console.log(`Admin number set to: ${number}`);
-            resolve(number);
-            showMainMenu(initializeClient, clearSession);
+            const apiKey = await promptCMCKey();
+            resolve({ adminNumber: number, apiKey });
         });
     });
 }
@@ -110,7 +110,6 @@ async function promptCMCKey() {
             // Save the API key to a file
             await fs.writeFile('api_key.json', JSON.stringify({ apiKey: key }));
             resolve(key);
-            showMainMenu(initializeClient, clearSession);
         });
     });
 }

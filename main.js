@@ -183,6 +183,28 @@ client.on('disconnected', (reason) => {
 
 // Modify the initialize process
 async function initializeClient() {
+    const { adminNumber: newAdminNumber, apiKey } = await promptAdminNumber();
+    adminNumber = newAdminNumber;
+    CMC_API_KEY = apiKey;
+
+    client = new Client({
+        authStrategy: new LocalAuth(),
+        puppeteer: {
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        }
+    });
+
+    client.on('qr', (qr) => {
+        console.log('Scan the QR code below to log in:');
+        qrcode.generate(qr, { small: true });
+    });
+
+    client.on('ready', () => {
+        console.log('Client is ready!');
+        // Add your bot logic here
+    });
+
     try {
         console.log('Starting client initialization...');
         await client.initialize();
@@ -1121,6 +1143,28 @@ async function main() {
 
 // Add these functions if they don't exist
 async function initializeClient() {
+    const { adminNumber: newAdminNumber, apiKey } = await promptAdminNumber();
+    adminNumber = newAdminNumber;
+    CMC_API_KEY = apiKey;
+
+    client = new Client({
+        authStrategy: new LocalAuth(),
+        puppeteer: {
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        }
+    });
+
+    client.on('qr', (qr) => {
+        console.log('Scan the QR code below to log in:');
+        qrcode.generate(qr, { small: true });
+    });
+
+    client.on('ready', () => {
+        console.log('Client is ready!');
+        // Add your bot logic here
+    });
+
     try {
         console.log('Starting client initialization...');
         await client.initialize();
@@ -1136,11 +1180,6 @@ async function initializeClient() {
             process.exit(1);
         }
     }
-    client.on('ready', async () => {
-        console.log('Client is ready!');
-        adminNumber = await promptAdminNumber();
-        CMC_API_KEY = await promptCMCKey();
-    });
 }
 
 main().catch(console.error);
