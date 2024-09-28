@@ -1,0 +1,41 @@
+# .gitignore
+
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+
+# API key file
+api_key.json
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# WhatsApp Web.js authentication files
+.wwebjs_auth/
+.wwebjs_cache/
+
+# npm debugging logs
+npm-debug.log*
+
+# Optional: if you're using yarn
+yarn-debug.log*
+yarn-error.log*
+
+# Optional: if you're using TypeScript
+*.tsbuildinfo
+
+# Optional: if you're generating any build output
+/dist
+/build
